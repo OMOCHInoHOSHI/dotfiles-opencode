@@ -1,0 +1,4 @@
+# OpenCode 固有の共通設定(存在する場合のみ読み込む)
+if [ -f "$HOME/dotfiles-opencode/secrets_sh" ]; then
+    source "$HOME/dotfiles-opencode/secrets_sh"
+fi
