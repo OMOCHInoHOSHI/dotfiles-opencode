@@ -5,6 +5,11 @@ dotfileのopencode設定
 
 `secrets_sh` は手動で作成してください（Git管理対象外）。
 
+読み込み
+```
+source ~/dotfiles-opencode/common_sh
+```
+
 #### ① 既存ファイルの状態確認
 - 通常ファイルなら次へ
 - 既に symlink なら `->` が表示される
