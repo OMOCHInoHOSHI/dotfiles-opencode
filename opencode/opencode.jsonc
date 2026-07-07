@@ -19,6 +19,7 @@
 
   // カスタム指示ファイル
   "instructions": [
+    "./AGENT.md",
     "./instructions.md"
   ],
   // ツール実行の確認設定
