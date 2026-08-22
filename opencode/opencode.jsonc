@@ -19,6 +19,14 @@
 
   // ロール別エージェント（モデル指定）
   "agent": {
+    "plan": {
+      "model": "opencode-go/glm-5.3",
+      "variant": "high"
+    },
+    "build": {
+      "model": "opencode-go/glm-5.3",
+      "variant": "high"
+    },
     "coder": {
       "description": "実装を担当するコーディング役。方針確定後の局所的な実装・テスト・ボイラープレートに使用。",
       "mode": "subagent",
@@ -35,7 +43,8 @@
     "researcher": {
       "description": "外部ライブラリ・API仕様・エラー原因などの調査を担当する調査役。",
       "mode": "subagent",
-      "model": "opencode-go/glm-5.2"
+      "model": "opencode-go/glm-5.2",
+      "variant": "max"
     }
   },
   // カスタム指示ファイル
