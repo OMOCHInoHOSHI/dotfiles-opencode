@@ -43,10 +43,13 @@
     "./AGENT.md",
     "./instructions.md"
   ],
-  // ツール実行の確認設定
+  // ツール実行の確認設定（デフォルトは allow、削除系のみ ask）
   "permission": {
-    "edit": "ask",
-    "bash": "ask"
+    "bash": {
+      "*": "allow",
+      "rm *": "ask",
+      "rmdir *": "ask"
+    }
   }
 }
 
