@@ -30,12 +30,14 @@
     "coder": {
       "description": "実装を担当するコーディング役。方針確定後の局所的な実装・テスト・ボイラープレートに使用。",
       "mode": "subagent",
-      "model": "opencode-go/kimi-k2.7-code"
+      "model": "opencode-go/glm-5.3-flash",
+      "variant": "max"
     },
     "reviewer": {
       "description": "報告前のコードレビューを担当するレビュー役。",
       "mode": "subagent",
-      "model": "opencode-go/qwen3.7-plus",
+      "model": "opencode-go/deepseek-v4-pro",
+      "variant": "max",
       "permission": {
         "edit": "deny"
       }
@@ -52,13 +54,50 @@
     "./AGENT.md",
     "./instructions.md"
   ],
-  // ツール実行の確認設定（デフォルトは allow、削除系のみ deny）
+  // ツール実行の確認設定（常に許可・削除系のみ deny）
   "permission": {
+    // .env 系ファイルの読み取りを明示的に拒否（*.env.example のみ許可）
+    // 注意: パターンは「最後にマッチしたルールが優先」のため、allow は deny の後に置く
+    "read": {
+      "*": "allow",
+      "*.env": "deny",
+      "*.env.local": "deny",
+      "*.env.*": "deny",
+      "*.env.example": "allow"
+    },
     "bash": {
       "*": "allow",
       "rm *": "deny",
-      "rmdir *": "deny"
-    }
+      "rmdir *": "deny",
+      // .env 系ファイルを bash 経由で読ませない（read ツール拒否の補完）
+      // 注意: *.env* は "foo.environment.ts" 等にもマッチする過剰検知を許容する安全側の設定
+      "cat *.env*": "deny",
+      "less *.env*": "deny",
+      "more *.env*": "deny",
+      "head *.env*": "deny",
+      "tail *.env*": "deny",
+      "grep *.env*": "deny",
+      "rg *.env*": "deny",
+      "sed *.env*": "deny",
+      "awk *.env*": "deny",
+      "sort *.env*": "deny",
+      "diff *.env*": "deny",
+      "wc *.env*": "deny",
+      "source *.env*": "deny",
+      // .env.example のみ bash でも読み取り可（最後のマッチが優先のため deny の後に置く）
+      "cat *.env.example": "allow",
+      "less *.env.example": "allow",
+      "head *.env.example": "allow",
+      "tail *.env.example": "allow",
+      "grep *.env.example": "allow",
+      "rg *.env.example": "allow"
+    },
+    // ワーキングディレクトリ外のパスも許可（デフォルトは ask のため確認が出ていた）
+    "external_directory": {
+      "*": "allow"
+    },
+    // 同一ツール呼び出しの重複検知も許可（デフォルトは ask）
+    "doom_loop": "allow"
   }
 }
 
