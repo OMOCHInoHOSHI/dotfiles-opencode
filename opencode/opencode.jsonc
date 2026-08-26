@@ -47,6 +47,10 @@
       "mode": "subagent",
       "model": "opencode-go/glm-5.2",
       "variant": "max"
+    },
+    "explore": {
+      "model": "opencode-go/glm-5.3-flash",
+      "variant": "max"
     }
   },
   // カスタム指示ファイル
