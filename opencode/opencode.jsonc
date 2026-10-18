@@ -54,9 +54,10 @@
     }
   },
   // カスタム指示ファイル
+  // v2: 相対パスはワークスペース基準で解決されるため、どこから起動しても読まれるようホーム基準で指定する
   "instructions": [
-    "./AGENT.md",
-    "./instructions.md"
+    "~/dotfiles-opencode/opencode/AGENT.md",
+    "~/dotfiles-opencode/opencode/instructions.md"
   ],
   // ツール実行の確認設定（常に許可・削除系のみ deny）
   "permission": {
