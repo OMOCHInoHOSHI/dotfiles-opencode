@@ -1,6 +1,8 @@
 # dotfiles-opencode
 dotfileのopencode設定
 
+V1→V2への移行方法は [MIGRATION_V1_TO_V2.md](./MIGRATION_V1_TO_V2.md) を参照。
+
 ## セットアップ手順
 
 `secrets_sh` は手動で作成してください（Git管理対象外）。

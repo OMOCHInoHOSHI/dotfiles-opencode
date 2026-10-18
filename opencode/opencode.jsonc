@@ -3,54 +3,50 @@
   "default_agent": "plan", // 起動時のデフォルトをPlanモードに指定
   // "model": "opencode-go/glm-5.3", // 
   // openrouterとgemini無効化中
-  // "provider": {
+  // v2: provider → providers、options → settings
+  // "providers": {
   //   "openrouter": {
-  //     "options": {
+  //     "settings": {
   //       "apiKey": "{env:OPENROUTER_API_KEY}",
   //       "baseURL": "https://openrouter.ai/api/v1"
   //     }
   //   },
   //   "google": {
-  //     "options": {
+  //     "settings": {
   //       "apiKey": "{env:GEMINI_API_KEY}"
   //     }
   //   }
   // },
 
   // ロール別エージェント（モデル指定）
-  "agent": {
+  // v2: agent → agents、model+variant → "provider/model#variant"
+  "agents": {
     // "plan": {
-    //   "model": "opencode-go/glm-5.3",
-    //   "variant": "high"
+    //   "model": "opencode-go/glm-5.3#high"
     // },
     // "build": {
-    //   "model": "opencode-go/glm-5.3",
-    //   "variant": "high"
+    //   "model": "opencode-go/glm-5.3#high"
     // },
     "coder": {
       "description": "実装を担当するコーディング役。方針確定後の局所的な実装・テスト・ボイラープレートに使用。",
       "mode": "subagent",
-      "model": "opencode-go/glm-5.3-flash",
-      "variant": "max"
+      "model": "opencode-go/glm-5.3-flash#max"
     },
     "reviewer": {
       "description": "報告前のコードレビューを担当するレビュー役。",
       "mode": "subagent",
-      "model": "opencode-go/deepseek-v4-pro",
-      "variant": "max",
-      "permission": {
-        "edit": "deny"
-      }
+      "model": "opencode-go/deepseek-v4-pro#max",
+      "permissions": [
+        { "action": "edit", "resource": "*", "effect": "deny" }
+      ]
     },
     "researcher": {
       "description": "外部ライブラリ・API仕様・エラー原因などの調査を担当する調査役。",
       "mode": "subagent",
-      "model": "opencode-go/glm-5.2",
-      "variant": "max"
+      "model": "opencode-go/glm-5.2#max"
     },
     "explore": {
-      "model": "opencode-go/glm-5.3-flash",
-      "variant": "max"
+      "model": "opencode-go/glm-5.3-flash#max"
     }
   },
   // カスタム指示ファイル
@@ -60,49 +56,42 @@
     "~/dotfiles-opencode/opencode/instructions.md"
   ],
   // ツール実行の確認設定（常に許可・削除系のみ deny）
-  "permission": {
+  // v2: permission（ツール別オブジェクト） → permissions（順序付き配列）。「最後にマッチしたルールが優先」
+  "permissions": [
     // .env 系ファイルの読み取りを明示的に拒否（*.env.example のみ許可）
-    // 注意: パターンは「最後にマッチしたルールが優先」のため、allow は deny の後に置く
-    "read": {
-      "*": "allow",
-      "*.env": "deny",
-      "*.env.local": "deny",
-      "*.env.*": "deny",
-      "*.env.example": "allow"
-    },
-    "bash": {
-      "*": "allow",
-      "rm *": "deny",
-      "rmdir *": "deny",
-      // .env 系ファイルを bash 経由で読ませない（read ツール拒否の補完）
-      // 注意: *.env* は "foo.environment.ts" 等にもマッチする過剰検知を許容する安全側の設定
-      "cat *.env*": "deny",
-      "less *.env*": "deny",
-      "more *.env*": "deny",
-      "head *.env*": "deny",
-      "tail *.env*": "deny",
-      "grep *.env*": "deny",
-      "rg *.env*": "deny",
-      "sed *.env*": "deny",
-      "awk *.env*": "deny",
-      "sort *.env*": "deny",
-      "diff *.env*": "deny",
-      "wc *.env*": "deny",
-      "source *.env*": "deny",
-      // .env.example のみ bash でも読み取り可（最後のマッチが優先のため deny の後に置く）
-      "cat *.env.example": "allow",
-      "less *.env.example": "allow",
-      "head *.env.example": "allow",
-      "tail *.env.example": "allow",
-      "grep *.env.example": "allow",
-      "rg *.env.example": "allow"
-    },
-    // ワーキングディレクトリ外のパスも許可（デフォルトは ask のため確認が出ていた）
-    "external_directory": {
-      "*": "allow"
-    },
-    // 同一ツール呼び出しの重複検知も許可（デフォルトは ask）
-    "doom_loop": "allow"
-  }
+    { "action": "read", "resource": "*", "effect": "allow" },
+    { "action": "read", "resource": "*.env", "effect": "deny" },
+    { "action": "read", "resource": "*.env.local", "effect": "deny" },
+    { "action": "read", "resource": "*.env.*", "effect": "deny" },
+    { "action": "read", "resource": "*.env.example", "effect": "allow" },
+    // .env 系ファイルを bash 経由で読ませない（read ツール拒否の補完）
+    // 注意: *.env* は "foo.environment.ts" 等にもマッチする過剰検知を許容する安全側の設定
+    { "action": "shell", "resource": "*", "effect": "allow" },
+    { "action": "shell", "resource": "rm *", "effect": "deny" },
+    { "action": "shell", "resource": "rmdir *", "effect": "deny" },
+    { "action": "shell", "resource": "cat *.env*", "effect": "deny" },
+    { "action": "shell", "resource": "less *.env*", "effect": "deny" },
+    { "action": "shell", "resource": "more *.env*", "effect": "deny" },
+    { "action": "shell", "resource": "head *.env*", "effect": "deny" },
+    { "action": "shell", "resource": "tail *.env*", "effect": "deny" },
+    { "action": "shell", "resource": "grep *.env*", "effect": "deny" },
+    { "action": "shell", "resource": "rg *.env*", "effect": "deny" },
+    { "action": "shell", "resource": "sed *.env*", "effect": "deny" },
+    { "action": "shell", "resource": "awk *.env*", "effect": "deny" },
+    { "action": "shell", "resource": "sort *.env*", "effect": "deny" },
+    { "action": "shell", "resource": "diff *.env*", "effect": "deny" },
+    { "action": "shell", "resource": "wc *.env*", "effect": "deny" },
+    { "action": "shell", "resource": "source *.env*", "effect": "deny" },
+    // .env.example のみ bash でも読み取り可（最後のマッチが優先のため deny の後に置く）
+    { "action": "shell", "resource": "cat *.env.example", "effect": "allow" },
+    { "action": "shell", "resource": "less *.env.example", "effect": "allow" },
+    { "action": "shell", "resource": "head *.env.example", "effect": "allow" },
+    { "action": "shell", "resource": "tail *.env.example", "effect": "allow" },
+    { "action": "shell", "resource": "grep *.env.example", "effect": "allow" },
+    { "action": "shell", "resource": "rg *.env.example", "effect": "allow" },
+    // ワーキングディレクトリ外のパスも許可（v2デフォルトは許可だが、意図を明示して維持）
+    { "action": "external_directory", "resource": "*", "effect": "allow" },
+    // 同一ツール呼び出しの重複検知も許可（v2では現行コアの権限アクションではないため、実効しない可能性あり）
+    { "action": "doom_loop", "resource": "*", "effect": "allow" }
+  ]
 }
-
