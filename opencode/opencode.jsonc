@@ -1,7 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "default_agent": "plan", // 起動時のデフォルトをPlanモードに指定
-  "model": "opencode-go/muse-spark-1.3-contributor#high", // オーケストレーター
   // openrouterとgemini無効化中
   // v2: provider → providers、options → settings
   // "providers": {
