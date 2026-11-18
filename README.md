@@ -32,6 +32,17 @@ v2 の相対パスは**セッションのワークスペース基準**で解決�
 **注意**: 指示ファイルが読まれなくても**エラーにならず黙って無視される**。
 変更後は実際に読み込まれているか確認すること（下記⑤参照）。
 
+#### Windows（Git Bash）の場合の注意
+
+- 設定ディレクトリは Windows でも `~/.config/opencode/`（= `C:\Users\<ユーザー>\.config\opencode`）。
+  無ければ先に `mkdir -p ~/.config/opencode` する。
+- Git Bash の `ln -s` は既定だと**コピー**を作る（編集が dotfiles 側に反映されない）。
+  開発者モードをオンにし、`dotfiles/win_sh`（`MSYS=winsymlinks:nativestrict`）を読み込んだ状態で③を実行する。
+- opencode は `$SHELL` でコマンド実行シェルを選び、未設定だと PowerShell を使う。
+  `permissions` の `rm *` や `cat *.env*` の deny は bash のコマンド名前提なので、
+  **Git Bash から起動する**（`win_sh` が `SHELL` を export する）。
+- `secrets_sh` は Git 管理外なので、WSL などの旧環境からコピーして作り直す。
+
 #### ① 既存ファイルの状態確認
 - 通常ファイルなら次へ
 - 既に symlink なら `->` が表示される
